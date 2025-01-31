@@ -89,12 +89,38 @@ def convertirTipo(valor):
 
     return valorFinal  # Si no es número, dejar como string
 
+def realizarSelect():
+    print("\nEstas son las colecciones disponibles: " + str(bd.list_collection_names()))
+    nombreColeccion = input("Que coleccion desea utilizar?\n")
+
+    # Verifica si existe la coleccion
+    if nombreColeccion not in bd.list_collection_names():
+        print("\nNo existe una coleccion con ese nombre ❌\n")
+    else: # En el caso que exista obtiene todos los documentos y los muestra
+        coleccion = bd[nombreColeccion]
+
+        for documento in coleccion.find():
+            print(documento)
 
 def realizarUpdate():
     print("")
 
 def realizarDelete():
-    print("")
+    print("\nEstas son las colecciones disponibles: " + str(bd.list_collection_names()))
+    nombreColeccion = input("Que coleccion desea utilizar?\n")
 
-def realizarSelect():
-    print("")
+    # Verifica si existe la coleccion
+    if nombreColeccion not in bd.list_collection_names():
+        print("\nNo existe una coleccion con ese nombre ❌\n")
+    else: # En el caso que exista pide la condicion para eliminar el documento
+        campoCondicion = input("\nIntroduce la condicion para borrar\n Campo: ")
+        valorCondicion = input("\nValor: ")
+
+        coleccion = bd[nombreColeccion]
+        resultado = coleccion.delete_one({campoCondicion : valorCondicion})
+
+        if resultado.deleted_count > 0:
+            print("El documento se elimino correctamente ✅")
+        else:
+            print("No se encontro el documento o no se elimino ❌")
+

@@ -53,7 +53,7 @@ def insercionDeRegistro(nombreColeccion):
 
             nuevoValor = input("\n Ahora ingrese su valor: \n")
 
-            valoresCampos[nuevoValor] = convertirTipo(valorCampo)
+            valoresCampos[nuevoCampo] = convertirTipo(nuevoValor)
 
         #Cuando deje de agregar campos, inserta el nuevo registro
         
@@ -103,7 +103,26 @@ def realizarSelect():
             print(documento)
 
 def realizarUpdate():
-    print("")
+    print("\nEstas son las colecciones disponibles: " + str(bd.list_collection_names()))
+    nombreColeccion = input("Que coleccion desea utilizar?\n")
+
+    if nombreColeccion not in bd.list_collection_names():
+        print("\nNo existe una coleccion con ese nombre ❌\n")
+    else: # En el caso que exista pide la condicion para actualizar el documento
+        campoCondicion = input("\nIntroduce la condicion para actualizar\n Campo: ")
+        valorCondicion = input("\nValor: ")
+
+        campoAModificar = input("\nAhora introduce el campo a actualizar\n Campo: ")
+        valorAModificar = input("\nValor a actualizar: ")
+
+
+        coleccion = bd[nombreColeccion]
+        resultado = coleccion.update_one({campoCondicion : valorCondicion}, {"$set": {campoAModificar: valorAModificar}})
+
+        if resultado.modified_count > 0:
+            print("El documento se actualizo correctamente ✅")
+        else:
+            print("No se encontro el documento o no se actualizo ❌")
 
 def realizarDelete():
     print("\nEstas son las colecciones disponibles: " + str(bd.list_collection_names()))

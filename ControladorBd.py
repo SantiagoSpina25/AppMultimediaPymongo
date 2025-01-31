@@ -10,14 +10,6 @@ if "app_multimedia" in conexion.list_database_names():
 else:
   print("La base de datos no fue encontrada")
 
-def crearColeccion():
-    nombreColeccion = input("Ingrese nombre de la nueva coleccion...\n")
-    #Si la coleccion ya existe, lo muestro
-    if nombreColeccion in bd.list_collection_names():
-        print("\nLa coleccion ya existe!\n")
-    else:
-        nuevaColeccion = bd[nombreColeccion]
-        print("\n------------------------------\nColeccion creada correctamente\n------------------------------")
 
 def realizarInsert():
     volver = False
@@ -41,6 +33,10 @@ def insercionDeRegistro(nombreColeccion):
     #Busco la coleccion en la bd
     coleccion = bd[nombreColeccion]
 
+    # Creo un array para almacenar todos los campos (clave - valor)
+    valoresCampos = {}
+    valorCampo = ""
+
     #Busco un documento para mostrar los campos de esa coleccion
     documentoEjemplo = coleccion.find_one()
 
@@ -48,27 +44,50 @@ def insercionDeRegistro(nombreColeccion):
     if not documentoEjemplo:
         print("La coleccion esta vacia, ingrese los campos que quiere ingresar y sus valores")
 
-    print("\nIngrese un valor para cada campo\n")
+        #Bucle pidiendo nuevos campos y registros y termina cuando pone uno vacio
+        while True:
+            nuevoCampo = input("\nIngrese un campo nuevo. Dejar vacio para dejar de agregar\n")
 
-    #Creo un array para almacenar todos los campos (clave - valor)
-    valoresCampos = {}
-    valorCampo = ""
+            if nuevoCampo == "":
+                break
 
-    #Muestro cada campo y pido un valor. Tambien saltea el campo _id
-    for campo in documentoEjemplo.keys():
-        if campo != "_id":
-            valorCampo = input(campo + ": ")
-        #inserto con la clave del campo el valor ingresadoS
-        valoresCampos[campo] = valorCampo
+            nuevoValor = input("\n Ahora ingrese su valor: \n")
 
-    #Elimino el id para que se genere automaticamente
-    valoresCampos.pop("_id")
+            valoresCampos[nuevoValor] = convertirTipo(valorCampo)
 
+        #Cuando deje de agregar campos, inserta el nuevo registro
+        
+
+    #Caso en el que hay campos existentes en la coleccion
+    else:
+        #Muestro cada campo y pido un valor. Tambien saltea el campo _id
+        for campo in documentoEjemplo.keys():
+            if campo != "_id":
+                valorCampo = input(campo + ": ")
+            #inserto con la clave del campo el valor ingresadoS
+            valoresCampos[campo] = convertirTipo(valorCampo)
+
+        #Elimino el id para que se genere automaticamente
+        valoresCampos.pop("_id")
+
+    
     #Inserto el registro
     resultadoInsert = coleccion.insert_one(valoresCampos)
 
     #Muestro el resultado del insert
-    print("\n"+ str(resultadoInsert))
+    if resultadoInsert.inserted_id:
+        print("\nEl registro se ha insertado correctamente. ✅\n")
+    else:
+        print("\nError: No se pudo insertar el registro. ❌\n")
+
+
+# Metodo que convierte los nuemeros de String a Int
+def convertirTipo(valor):
+    valorFinal = valor
+    if valor.isdigit():
+        valorFinal = int(valor)
+
+    return valorFinal  # Si no es número, dejar como string
 
 
 def realizarUpdate():

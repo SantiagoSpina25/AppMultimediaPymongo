@@ -28,7 +28,6 @@ def realizarInsert():
     if volver != True:
         insercionDeRegistro(nombreColeccion)
     
-
 def insercionDeRegistro(nombreColeccion):
     #Busco la coleccion en la bd
     coleccion = bd[nombreColeccion]
@@ -80,7 +79,6 @@ def insercionDeRegistro(nombreColeccion):
     else:
         print("\nError: No se pudo insertar el registro. ❌\n")
 
-
 # Metodo que convierte los nuemeros de String a Int
 def convertirTipo(valor):
     valorFinal = valor
@@ -99,7 +97,21 @@ def realizarSelect():
     else: # En el caso que exista obtiene todos los documentos y los muestra
         coleccion = bd[nombreColeccion]
 
-        for documento in coleccion.find():
+        # Compruebo si quiere poner una condicion en la consulta
+        agregarCondiciones = int(input("\n¿Desea agregar condiciones a la consulta? 1.Si 2.No: \n"))
+
+        condiciones = {}
+
+        if agregarCondiciones == 1:
+            while True:
+                campo = input("\nIngrese el campo para la condicion (deje vacio para finalizar): \n")
+                if campo == "":
+                    break
+                valor = input("\nIngrese el valor para '"+campo+"': \n")
+                condiciones[campo] = convertirTipo(valor)
+       
+        # Hago la consulta con las condiciones puestas (si no hay ninguna muestra todos los documentos)
+        for documento in coleccion.find(condiciones):
             print(documento)
 
 def realizarUpdate():
@@ -108,16 +120,18 @@ def realizarUpdate():
 
     if nombreColeccion not in bd.list_collection_names():
         print("\nNo existe una coleccion con ese nombre ❌\n")
-    else: # En el caso que exista pide la condicion para actualizar el documento
+    else:
+        # En el caso que exista pide la condicion para actualizar el documento
         campoCondicion = input("\nIntroduce la condicion para actualizar\n Campo: ")
-        valorCondicion = input("\nValor: ")
+        valorCondicion = input("\nValor para el campo '"+campoCondicion+"': ")
 
         campoAModificar = input("\nAhora introduce el campo a actualizar\n Campo: ")
-        valorAModificar = input("\nValor a actualizar: ")
+        valorAModificar = input("\nValor a actualizar para el campo '"+campoAModificar+"': ")
 
 
         coleccion = bd[nombreColeccion]
-        resultado = coleccion.update_one({campoCondicion : valorCondicion}, {"$set": {campoAModificar: valorAModificar}})
+        resultado = coleccion.update_one({campoCondicion : convertirTipo(valorCondicion)}, 
+                                         {"$set": {campoAModificar: convertirTipo(valorAModificar)}})
 
         if resultado.modified_count > 0:
             print("El documento se actualizo correctamente ✅")
@@ -133,10 +147,10 @@ def realizarDelete():
         print("\nNo existe una coleccion con ese nombre ❌\n")
     else: # En el caso que exista pide la condicion para eliminar el documento
         campoCondicion = input("\nIntroduce la condicion para borrar\n Campo: ")
-        valorCondicion = input("\nValor: ")
+        valorCondicion = input("\nValor para el campo '"+campoCondicion+"': ")
 
         coleccion = bd[nombreColeccion]
-        resultado = coleccion.delete_one({campoCondicion : valorCondicion})
+        resultado = coleccion.delete_one({campoCondicion : convertirTipo(valorCondicion)})
 
         if resultado.deleted_count > 0:
             print("El documento se elimino correctamente ✅")
